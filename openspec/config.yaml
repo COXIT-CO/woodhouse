@@ -3,11 +3,28 @@ schema: spec-driven
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  Woodhouse is a Chrome MV3 DevTools extension. Tech stack: TypeScript (ES2022),
+  esbuild bundling via build.mjs, zero runtime dependencies. No UI framework —
+  vanilla DOM via a hand-rolled h() hyperscript helper (src/panel/dom.ts); do not
+  introduce React/Vue/etc. despite docs/ARCHITECTURE.md's aspirational mention of one.
+
+  Non-negotiable constraints:
+  - No new dependencies (runtime or dev) without strong justification.
+  - No network egress of any kind — all analysis is local, nothing leaves the browser.
+  - Manifest permissions stay minimal (currently just "storage"); no new permission
+    without explicit justification.
+
+  House style (see CLAUDE.md for the full reference): no classes anywhere; `unknown`
+  over `any`; string-literal unions instead of enums; no `throw`/custom Error classes
+  (failures become fallback values or `Finding` objects); SCREAMING_SNAKE_CASE for
+  module-level constants; cap every collection that can grow unboundedly;
+  section-banner comments (`// ---- like this ----`) to split long functions; terse
+  comments only where behavior isn't obvious from naming.
+
+  Testing: a hand-rolled node:assert/strict runner (tests/analysis.test.ts) covers
+  only src/analysis/* pure functions. No linter/formatter/CI config exists — style is
+  hand-maintained.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
