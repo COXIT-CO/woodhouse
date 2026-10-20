@@ -338,6 +338,53 @@
     }
   }
 
+  // src/panel/onboarding.ts
+  var STORAGE_KEY = "wh_onboarding_dismissed";
+  var TAB_BLURBS = [
+    ["Requests", "live HTTP capture with headers, bodies and copy-as-cURL."],
+    ["WS/SSE", "WebSocket and Server-Sent-Events connections with a frame timeline."],
+    ["Console", "page console output, including uncaught errors and rejections."],
+    ["Sources", "inventory of loaded scripts, styles and documents."],
+    ["Insights", "press Analyze for ranked findings: duplicates, headers, privacy, secrets."]
+  ];
+  async function getOnboardingDismissed() {
+    try {
+      const got = await chrome.storage.local.get(STORAGE_KEY);
+      return got[STORAGE_KEY] === true;
+    } catch {
+      return false;
+    }
+  }
+  async function setOnboardingDismissed() {
+    try {
+      await chrome.storage.local.set({ [STORAGE_KEY]: true });
+    } catch {
+    }
+  }
+  function renderOnboardingBanner(onDismiss) {
+    const banner2 = h(
+      "div",
+      { class: "onboarding-banner" },
+      h(
+        "button",
+        {
+          class: "dismiss",
+          title: "Dismiss",
+          onclick: () => {
+            void setOnboardingDismissed();
+            banner2.remove();
+            onDismiss();
+          }
+        },
+        "Got it"
+      ),
+      h("div", { class: "title" }, "Welcome to Woodhouse"),
+      h("ul", {}, ...TAB_BLURBS.map(([tab, blurb]) => h("li", {}, h("b", {}, tab), ` \u2014 ${blurb}`))),
+      h("div", { class: "local" }, "All analysis runs locally \u2014 nothing ever leaves your browser.")
+    );
+    return banner2;
+  }
+
   // src/panel/main.ts
   var app = document.getElementById("app");
   var activeTab = "requests";
@@ -346,6 +393,7 @@
   var selectedConn = null;
   var consoleLevels = /* @__PURE__ */ new Set(["log", "info", "warn", "error", "debug", "trace", "uncaught", "unhandledrejection"]);
   var analyzing = false;
+  var banner = null;
   var worker = new Worker("worker.js");
   worker.onmessage = (e) => {
     store.analysis = e.data;
@@ -391,7 +439,7 @@
     const active = document.activeElement;
     const restoreFilter = active?.id === "wh-filter" ? { start: active.selectionStart, end: active.selectionEnd } : null;
     app.textContent = "";
-    app.append(renderToolbar(), renderTabs(), renderContent());
+    app.append(renderToolbar(), ...banner ? [banner] : [], renderTabs(), renderContent());
     if (restoreFilter) {
       const el = document.getElementById("wh-filter");
       if (el) {
@@ -798,6 +846,11 @@
     );
   }
   startCapture();
-  subscribe(render);
-  render();
+  void getOnboardingDismissed().then((dismissed) => {
+    if (!dismissed) banner = renderOnboardingBanner(() => {
+      banner = null;
+    });
+    subscribe(render);
+    render();
+  });
 })();
