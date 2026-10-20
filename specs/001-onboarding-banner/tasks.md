@@ -27,7 +27,7 @@ Single project (Chrome extension) — all paths are under `src/` at the reposito
 
 **Purpose**: Confirm the prerequisite the whole feature depends on.
 
-- [ ] T001 Confirm `permissions: ["storage"]` is already present in `src/manifest.json` (it is —
+- [X] T001 Confirm `permissions: ["storage"]` is already present in `src/manifest.json` (it is —
       no manifest change needed; this task is a verification step, not an edit).
 
 ---
@@ -38,7 +38,7 @@ Single project (Chrome extension) — all paths are under `src/` at the reposito
 
 **⚠️ CRITICAL**: US1 and US2 both need this before their tasks can start.
 
-- [ ] T002 Create `src/panel/onboarding.ts` with `getOnboardingDismissed(): Promise<boolean>` and
+- [X] T002 Create `src/panel/onboarding.ts` with `getOnboardingDismissed(): Promise<boolean>` and
       `setOnboardingDismissed(): Promise<void>`, wrapping `chrome.storage.local` reads/writes of
       the `wh_onboarding_dismissed` key (see `data-model.md`).
 
@@ -54,13 +54,13 @@ local-only guarantee.
 **Independent Test**: Fresh install (or cleared storage) → open panel → banner appears with all 5
 tab names and the local-only statement (quickstart.md Scenario 1).
 
-- [ ] T003 [US1] Implement `renderOnboardingBanner(): HTMLElement` in `src/panel/onboarding.ts`
+- [X] T003 [US1] Implement `renderOnboardingBanner(): HTMLElement` in `src/panel/onboarding.ts`
       using the existing `h()` helper from `src/panel/dom.ts`, with copy covering all 5 tabs
       (Requests, WS/SSE, Console, Sources, Insights) and the "nothing leaves your browser"
       statement (spec FR-002, FR-003).
-- [ ] T004 [P] [US1] Add `.onboarding-banner` styles in `src/styles.css`, matching the existing
+- [X] T004 [P] [US1] Add `.onboarding-banner` styles in `src/styles.css`, matching the existing
       `.empty` visual language (spec Assumptions).
-- [ ] T005 [US1] In `src/panel/main.ts`, call `getOnboardingDismissed()` (from T002) before the
+- [X] T005 [US1] In `src/panel/main.ts`, call `getOnboardingDismissed()` (from T002) before the
       first `render()`, and if falsy, mount `renderOnboardingBanner()` (from T003) above the tab
       bar; ensure it does not cover the tab bar or toolbar (spec FR-001, FR-007).
 
@@ -75,9 +75,12 @@ tab names and the local-only statement (quickstart.md Scenario 1).
 **Independent Test**: Dismiss banner → reopen panel → banner does not reappear
 (quickstart.md Scenario 2).
 
-- [ ] T006 [US2] Add a dismiss control to `renderOnboardingBanner()`
+- [X] T006 [US2] Add a dismiss control to `renderOnboardingBanner()`
       (`src/panel/onboarding.ts`) that calls `setOnboardingDismissed()` (from T002) and removes
       the banner element from the live DOM without a full re-render (spec FR-004, FR-005).
+      _Implementation note: signature became `renderOnboardingBanner(onDismiss: () => void)` —
+      `render()` rebuilds `#app` on every store notify, so `main.ts` must drop its banner
+      reference on dismiss or the next re-render would re-mount it._
 
 **Checkpoint**: US2 independently testable — dismissal persists across panel reopens.
 
@@ -90,7 +93,7 @@ tab names and the local-only statement (quickstart.md Scenario 1).
 **Independent Test**: With banner dismissed, open a tab with no data → existing empty-state
 message still appears (quickstart.md Scenario 3).
 
-- [ ] T007 [US3] Manually verify each of the 4 existing empty-state messages in
+- [X] T007 [US3] Manually verify each of the 4 existing empty-state messages in
       `src/panel/main.ts` (lines ~207, ~317, ~394, ~428) still renders correctly with the banner
       code present and dismissed — no code change expected; this is a regression check only.
 
@@ -100,8 +103,8 @@ message still appears (quickstart.md Scenario 3).
 
 ## Final Phase: Polish & Cross-Cutting Concerns
 
-- [ ] T008 [P] Update `README.md`'s feature list to mention the first-run onboarding banner.
-- [ ] T009 Run `npm run typecheck` and `npm run build`; confirm both succeed with no new errors.
+- [X] T008 [P] Update `README.md`'s feature list to mention the first-run onboarding banner.
+- [X] T009 Run `npm run typecheck` and `npm run build`; confirm both succeed with no new errors.
 
 ---
 

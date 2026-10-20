@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-05
 
-**Status**: Draft
+**Status**: Implemented (2026-10-20)
 
 **Input**: User description: "Add a first-run onboarding banner to the Woodhouse DevTools panel. It should explain the 5 tabs (Requests, WS/SSE, Console, Sources, Insights) and state that all analysis is local — nothing leaves the browser. Show it once per install, with a dismiss control that persists the dismissal."
 

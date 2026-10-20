@@ -15,6 +15,7 @@ Chrome DevTools extension for developers: captures HTTP/WS/SSE traffic, console 
   - secrets/tokens in URLs and page sources
   - console errors correlated with failed requests, noisy logging
   - failed and slow requests, large/duplicate bundles
+- **First-run onboarding banner** — a one-time, dismissible intro above the tabs explaining each tab and that all analysis stays local; dismissal is remembered in `chrome.storage.local`.
 - **Export session** — one JSON file with everything (Claude-friendly: drop it into a Claude chat to debug together).
 
 ## Install (dev mode)
