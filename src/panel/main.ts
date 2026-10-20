@@ -2,6 +2,7 @@ import type { AnalysisInput, AnalysisResult, Finding, Header, ReqEntry, WsConn }
 import { summarizeJson } from "../analysis/json-summary";
 import { refreshSources, startCapture } from "./capture";
 import { copyText, download, fmtTime, h, prettyJson } from "./dom";
+import { getOnboardingDismissed, renderOnboardingBanner } from "./onboarding";
 import { clearStore, store, subscribe } from "./state";
 
 type TabId = "requests" | "websockets" | "console" | "sources" | "insights";
@@ -13,6 +14,7 @@ let selectedReq: ReqEntry | null = null;
 let selectedConn: WsConn | null = null;
 let consoleLevels = new Set(["log", "info", "warn", "error", "debug", "trace", "uncaught", "unhandledrejection"]);
 let analyzing = false;
+let banner: HTMLElement | null = null;
 
 const worker = new Worker("worker.js");
 worker.onmessage = (e: MessageEvent) => {
@@ -65,7 +67,7 @@ function render(): void {
   const active = document.activeElement as HTMLInputElement | null;
   const restoreFilter = active?.id === "wh-filter" ? { start: active.selectionStart, end: active.selectionEnd } : null;
   app.textContent = "";
-  app.append(renderToolbar(), renderTabs(), renderContent());
+  app.append(renderToolbar(), ...(banner ? [banner] : []), renderTabs(), renderContent());
   if (restoreFilter) {
     const el = document.getElementById("wh-filter") as HTMLInputElement | null;
     if (el) {
@@ -486,5 +488,9 @@ function findingCard(f: Finding): HTMLElement {
 // ---------------- boot ----------------
 
 startCapture();
-subscribe(render);
-render();
+// Read the dismissal flag before any paint (subscribe included) so the banner never pops in late.
+void getOnboardingDismissed().then((dismissed) => {
+  if (!dismissed) banner = renderOnboardingBanner(() => { banner = null; });
+  subscribe(render);
+  render();
+});
